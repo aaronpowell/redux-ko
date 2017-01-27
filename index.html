@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>ko + redux</title>
+    <style>
+        body {
+            margin: 0 auto;
+            width: 778px;
+            padding-top: 50px;
+            font-size: 48px;
+        }
+
+        button {
+            font-size: 48px;
+        }
+    </style>
+</head>
+
+<body>
+    <div>You've clicked <span data-bind='text: numberOfClicks'>&nbsp;</span> times</div>
+    <button data-bind='click: registerClick'>Click me</button>
+    <script src="knockout-3.4.1.js"></script>
+    <script src="redux.min.js"></script>
+    <script src="redux-ko.js"></script>
+    <script src="CounterViewModel.js"></script>
+    <script>
+        const action = (value) => ({
+            type: 'INC',
+            payload: value
+        });
+
+        const reducer = (state = {
+            numberOfClicks: 0
+        }, action) => {
+            if (action.type === 'INC') {
+                return Object.assign({}, state, {
+                    numberOfClicks: action.payload
+                });
+            }
+
+            return state;
+        };
+
+        // -- start redux-ko --
+        const store = Redux.createStore(reducer);
+
+        // -- bind to ui --
+        const stateToProps = (state) => {
+            return {
+                numberOfClicks: state.numberOfClicks
+            };
+        };
+
+        const dispatchToProps = (dispatch) => {
+            return {
+                click: (count) => dispatch(action(count))
+            };
+        };
+
+        ko.applyBindings(
+            ReduxKo.connect
+                (store)
+                (stateToProps, dispatchToProps)
+                (CounterViewModel)
+        );
+    </script>
+</body>
+
+</html>
